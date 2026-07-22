@@ -1,6 +1,4 @@
-openapi: 3.1.0
-info:
-  title: Cleeng API 3.1 (mini)
+title: Cleeng API 3.1 (mini)
   version: 1.0.0
   description: |
     Trimmed subset of the Cleeng API 3.1 used for testing spec-sync workflows
@@ -8,7 +6,7 @@ info:
     `success` / `data` / `message` envelope, `allOf` composition, ETag-based
     optimistic locking on offers, and subscription lifecycle actions.
 
-    **SYNC TEST MARKER: v1 — edit this line and commit to test propagation.**
+    **SYNC TEST MARKER: v2 (rich markdown added) — edit this line and commit to test propagation.**
   contact:
     name: Docs Team
     email: docs@example.com
@@ -23,18 +21,126 @@ servers:
 security:
   - publisherToken: []
 tags:
+  - name: Response envelope
+    x-traitTag: true
+    description: |
+      Most 3.1 endpoints wrap their payload in a common envelope:
+
+      ```json
+      {
+        "success": true,
+        "data": { "...": "..." },
+        "message": "Customer fetched successfully"
+      }
+      ```
+
+      | Field | Type | Meaning |
+      |---|---|---|
+      | `success` | boolean | Whether the operation succeeded |
+      | `data` | object \| null | The resource; `null` on failure. Some endpoints use a domain key (`order`, `payment`) instead |
+      | `message` | string | Human-readable outcome |
+
+      > **Exceptions:** offer search returns a *bare array* (count in the
+      > `X-Total-Count` header), and some `400` responses return a plain
+      > `{ "message": "..." }` without the envelope. Check each endpoint.
+  - name: Errors
+    x-traitTag: true
+    description: |
+      ## Status codes
+
+      | Code | Meaning | Typical cause |
+      |---|---|---|
+      | `400` | Malformed request | Invalid identifier format, missing parameter |
+      | `401` | Unauthorized | Missing or invalid `X-Publisher-Token` |
+      | `404` | Not found | Resource does not exist |
+      | `412` | Precondition failed | `If-Match` version mismatch (offers only) |
+      | `422` | Unprocessable | Valid request, wrong state — see table below |
+
+      ## Common `422` scenarios
+
+      | Endpoint | Rejected when |
+      |---|---|
+      | `POST /customers` | Email or `externalId` already exists |
+      | `DELETE /customers/{id}` | Customer still has an active subscription |
+      | `POST /subscriptions/{id}/pause` | Trial, pass, or pause disabled on the offer |
+      | `PATCH /payments/{id}` | Refund exceeds original amount |
   - name: Customers
-    description: Create, search, and manage customer accounts.
+    x-displayName: Customers & identity
+    description: |
+      Customers represent the end users of your service.
+
+      ## Identifiers
+
+      Every customer carries several identifiers with different purposes:
+
+      | Identifier | Format | Assigned by | Use for |
+      |---|---|---|---|
+      | `id` | 9-digit integer (`100000000`–`999999999`) | Cleeng | All API calls |
+      | `email` | RFC 5322, unique per publisher | you | Search, login |
+      | `externalId` | free string ≤ 100 chars, unique | you | CRM correlation |
+      | identity pair | `identityProvider` + `identityId` | IdP | Social-login lookups |
+
+      ## Search rules
+
+      `GET /3.1/customers` requires **at least one** criterion:
+
+      1. `email` — exact match
+      2. `externalId` — exact match
+      3. `identityProvider` **and** `identityId` — must be sent *together*
+
+      ```bash
+      curl "https://api.cleeng.com/3.1/customers?externalId=crm-12345" \
+        -H "X-Publisher-Token: $TOKEN"
+      ```
+
+      > ⚠️ The token returned by `POST /3.1/customers` authenticates the
+      > customer. Never log it or expose it client-side.
   - name: Subscriptions
-    description: Subscription lifecycle actions.
+    description: |
+      Subscription lifecycle actions. Valid state transitions:
+
+      | From ↓ / To → | active | cancelled | paused | terminated |
+      |---|---|---|---|---|
+      | **active** | — | `/cancel` | `/pause` | `/terminate` |
+      | **cancelled** | `/activate` | — | ✗ | `/terminate` |
+      | **paused** | `/resume` | ✗ | — | `/terminate` |
+      | **terminated** | `/revive`\* | ✗ | ✗ | — |
+
+      \* `/revive` requires a new expiration date and returns `422` if the
+      referenced payment is not found for the customer.
   - name: Offers
-    description: Offers and their activation state.
+    description: |
+      Offers and their activation state.
+
+      The **first letter of the offer ID encodes its type**:
+      `S` subscription · `P` pass · `A` single purchase · `R` rental —
+      e.g. `S123456789_US`.
+
+      Reads and writes support optimistic locking:
+      - `GET` returns the current version in the `ETag` header
+      - send it back via `If-None-Match` (reads) or `If-Match` (writes)
+      - a stale `If-Match` is rejected with `412 Precondition Failed`
   - name: Orders
     description: Orders created for offers during checkout.
   - name: Payments
     description: Payments made against orders.
   - name: Entitlements
     description: Access checks for customers and offers.
+x-tagGroups:
+  - name: Concepts
+    tags:
+      - Response envelope
+      - Errors
+  - name: Accounts
+    tags:
+      - Customers
+      - Entitlements
+  - name: Monetization
+    tags:
+      - Offers
+      - Orders
+      - Payments
+      - Subscriptions
 paths:
   /3.1/customers:
     get:
@@ -770,3 +876,4 @@ components:
                 - $ref: '#/components/schemas/PaymentResource'
                 - type: 'null'
               description: The payment, or null on failure.
+
