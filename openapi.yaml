@@ -208,7 +208,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerEnvelope'
+                $ref: '#/components/schemas/CustomerEnvelop'
         '400':
           description: The request body failed validation.
         '401':
