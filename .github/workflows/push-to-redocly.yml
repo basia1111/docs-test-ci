@@ -18,7 +18,7 @@ jobs:
       - name: Push via Redocly CLI
         run: |
           npx @redocly/cli push openapi.yaml \
-            --organization 'test' \
+            --organization 'test-stxgw' \
             --project 'docs-test-main' \
             --mount-path 'remotes/ci' \
             --branch "${GITHUB_REF_NAME}" \
