@@ -21,7 +21,7 @@ jobs:
             --organization 'test-stxgw' \
             --project 'docs-test-main' \
             --mount-path 'remotes/ci' \
-            --branch "sync-branch" \
+            --branch "change-test" \
             --default-branch 'main' \
             --author "${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>" \
             --message "Manual push from workflow_dispatch"
