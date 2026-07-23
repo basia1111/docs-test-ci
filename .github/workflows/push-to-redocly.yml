@@ -26,8 +26,8 @@ jobs:
       - name: Push to Reunite
         uses: redocly/reunite-push-action@v1
         with:
-          organization: '<org-slug>'
-          project: '<project-slug>'
+          organization: 'test'
+          project: 'docs-test-main'
           mountPath: 'remotes/ci'
           files: 'openapi.yaml'
         env:
