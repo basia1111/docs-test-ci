@@ -11,9 +11,7 @@
 name: Push API to Redocly
 
 on:
-  push:
-    branches:
-      - '**'
+  workflow_dispatch:
 
 jobs:
   push:
