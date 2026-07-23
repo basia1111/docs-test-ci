@@ -26,4 +26,4 @@ jobs:
             --author "${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>" \
             --message "Manual push from workflow_dispatch"
         env:
-          REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_AUTHORIZATION }}
+          REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_API_KEY }}
