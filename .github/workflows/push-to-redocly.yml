@@ -1,0 +1,36 @@
+# Pushes openapi.yaml into the Reunite project's CI/CD remote content
+# source (mount path: remotes/ci).
+#
+# Before first run:
+# 1. Reunite: Remote content -> add CI/CD source, mount path: remotes/ci
+# 2. Reunite: Settings -> API keys (ORGANIZATION level) -> create key
+# 3. This repo: Settings -> Secrets -> Actions -> new secret
+#    name: REDOCLY_AUTHORIZATION   value: the key
+# 4. Replace <org-slug> and <project-slug> below with the values from
+#    the snippet Reunite shows when you create the CI/CD source.
+name: Push API to Redocly
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Push to Reunite
+        uses: redocly/reunite-push-action@v1
+        with:
+          organization: '<org-slug>'
+          project: '<project-slug>'
+          mountPath: 'remotes/ci'
+          files: 'openapi.yaml'
+        env:
+          REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_API_KEY }}

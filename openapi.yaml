@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Cleeng API 3.1 (mini) - changed
+  title: Cleeng API 3.1 (mini, CI-pushed)
   version: 1.0.0
   description: |
     Trimmed subset of the Cleeng API 3.1 used for testing spec-sync workflows
@@ -8,7 +8,7 @@ info:
     `success` / `data` / `message` envelope, `allOf` composition, ETag-based
     optimistic locking on offers, and subscription lifecycle actions.
 
-    **SYNC TEST MARKER: v2 (rich markdown added) — edit this line and commit to test propagation.**
+    **CI LANE MARKER: v1 — edit this line and commit to test propagation.**
   contact:
     name: Docs Team
     email: docs@example.com
@@ -208,7 +208,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomerEnvelop'
+                $ref: '#/components/schemas/CustomerEnvelope'
         '400':
           description: The request body failed validation.
         '401':
@@ -879,4 +879,3 @@ components:
                 - $ref: '#/components/schemas/PaymentResource'
                 - type: 'null'
               description: The payment, or null on failure.
-
