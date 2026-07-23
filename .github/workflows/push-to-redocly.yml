@@ -1,13 +1,5 @@
 # Pushes openapi.yaml into the Reunite project's CI/CD remote content
 # source (mount path: remotes/ci).
-#
-# Before first run:
-# 1. Reunite: Remote content -> add CI/CD source, mount path: remotes/ci
-# 2. Reunite: Settings -> API keys (ORGANIZATION level) -> create key
-# 3. This repo: Settings -> Secrets -> Actions -> new secret
-#    name: REDOCLY_AUTHORIZATION   value: the key
-# 4. Replace <org-slug> and <project-slug> below with the values from
-#    the snippet Reunite shows when you create the CI/CD source.
 name: Push API to Redocly
 
 on:
@@ -23,8 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-            - name: Push (manual dispatch — via CLI)
-        if: github.event_name == 'workflow_dispatch'
+      - name: Push via Redocly CLI
         run: |
           npx @redocly/cli push openapi.yaml \
             --organization 'test' \
@@ -34,6 +25,5 @@ jobs:
             --default-branch 'main' \
             --author "${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>" \
             --message "Manual push from workflow_dispatch"
-
         env:
-          REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_API_KEY }}
+          REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_AUTHORIZATION }}
