@@ -538,6 +538,7 @@ paths:
                   type: string
                   enum: [capture, reject, refund]
                   description: Operation to apply to the payment.
+                  example: refund
                 refundAmount:
                   type: number
                   description: Amount to refund; must not exceed the original.
