@@ -23,12 +23,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Push to Reunite
-        uses: redocly/reunite-push-action@v1
-        with:
-          organization: 'test'
-          project: 'docs-test-main'
-          mountPath: 'remotes/ci'
-          files: 'openapi.yaml'
+            - name: Push (manual dispatch — via CLI)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npx @redocly/cli push openapi.yaml \
+            --organization 'test' \
+            --project 'docs-test-main' \
+            --mount-path 'remotes/ci' \
+            --branch "${GITHUB_REF_NAME}" \
+            --default-branch 'main' \
+            --author "${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>" \
+            --message "Manual push from workflow_dispatch"
+
         env:
           REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_API_KEY }}
