@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Cleeng API 3.1 (mini) - changed
+  title: Cleeng API 3.1 (mini)
   version: 1.0.0
   description: |
     Trimmed subset of the Cleeng API 3.1 used for testing spec-sync workflows
